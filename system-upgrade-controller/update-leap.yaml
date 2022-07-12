@@ -20,7 +20,7 @@ stringData:
 apiVersion: upgrade.cattle.io/v1
 kind: Plan
 metadata:
-  name: leap-update-2
+  name: leap-update
   namespace: system-upgrade
 spec:
   concurrency: 1
