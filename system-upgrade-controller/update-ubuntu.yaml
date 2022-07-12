@@ -1,0 +1,40 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ubuntu-update-script
+  namespace: system-upgrade
+type: Opaque
+stringData:
+  update.sh: |
+    #!/bin/sh
+    set -e
+    apt-get update
+    apt-get upgrade -y
+    # It is important to check if reboot if needed otherwise you will get in a reboot loop.
+    if [ -f /var/run/reboot-required ]; then
+      reboot
+    fi
+
+---
+apiVersion: upgrade.cattle.io/v1
+kind: Plan
+metadata:
+  name: ubuntu-update
+  namespace: system-upgrade
+spec:
+  concurrency: 1
+  nodeSelector:
+    matchExpressions:
+      - {key: node-role.kubernetes.io/worker, operator: Exists}
+  serviceAccountName: system-upgrade
+  secrets:
+    - name: ubuntu-update-script
+      path: /host/run/system-upgrade/secrets/ubuntu-update-script
+  drain:
+    force: true
+  version: focal
+  upgrade:
+    image: ubuntu
+    command: ["chroot", "/host"]
+    args: ["sh", "/run/system-upgrade/secrets/ubuntu-update-script/update.sh"]
