@@ -36,7 +36,7 @@ spec:
       path: /host/run/system-upgrade/secrets/leap-update-script
   drain:
     force: true
-  version: leap
+  version: "1"
   upgrade:
     image: registry.opensuse.org/opensuse/leap:latest
     command: ["chroot", "/host"]
